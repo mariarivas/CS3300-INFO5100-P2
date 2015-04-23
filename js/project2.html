@@ -1,0 +1,127 @@
+<html>
+
+
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+
+<style>
+body { font-family: "Open Sans"; }
+svg { border: solid black 1px; }
+.bar rect { fill: #ccc; }
+.axis path { fill: none; stroke: orange;}
+.axis line { stroke: orange; }
+.axis text { font-size: x-small; }
+</style>
+
+</head>
+
+<body>
+
+<div id="info"></div>
+<div id="chart"></div>
+<script>
+d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
+	var socialhistogram = function(barData){
+	var height = 400;
+	var width = 400;
+	var padding = 30;
+	var color = d3.scale.category20();
+
+	
+	var svg = d3.select("#chart").append("svg")
+	.attr("height", "40%")
+	.attr("width", "40%");
+
+	var sequence = new Array();
+		sequence.push({"name":"PERCENT OF HOUSING CROWDED", "value":barData["PERCENT OF HOUSING CROWDED"]}) ;
+		sequence.push({"name":"PERCENT HOUSEHOLDS BELOW POVERTY", "value":barData["PERCENT HOUSEHOLDS BELOW POVERTY"]}) ;
+		sequence.push({"name":"PERCENT AGED 16+ UNEMPLOYED", "value":barData["PERCENT AGED 16+ UNEMPLOYED"]}) ;
+		sequence.push({"name":"PERCENT AGED 25+ WITHOUT HIGH SCHOOL DIPLOMA", "value":barData["PERCENT AGED 25+ WITHOUT HIGH SCHOOL DIPLOMA"]});
+		sequence.push({"name":"PERCENT AGED UNDER 18 OR OVER 64", "value":barData["PERCENT AGED UNDER 18 OR OVER 64"]});
+		//sequence.push(barData["PER CAPITA INCOME"]); 
+
+
+	
+
+	var histogram = d3.layout.histogram();
+	// var xScale = d3.scale.oridinal()
+	// .domain(sequence).range([0 + padding, width]);
+	// var xScale = d3.scale.oridinal().domain([sequence]).rangePoints([padding,sequence.length * barWidth]);
+	var yScale = d3.scale.linear().domain([0,100]).range([90,0]);
+	var yAxis = d3.svg.axis().scale(yScale).orient("left");
+	var theAxis = svg.append("g")
+	.attr("class", "axis")
+	.attr("transform", "translate(" + (svg[0][0].offsetWidth * 0.3) +", 70)")
+	// .attr("transform", "rotate("1")")
+
+	.call(yAxis);
+
+	window.onresize = function(){
+		console.log('test');
+		theAxis.attr("transform", "translate(" + (svg[0][0].offsetWidth * 0.3) +", 70)");
+	};
+
+
+
+	var barWidth = 100/(sequence.length+10);
+
+	var bar = svg.selectAll(".bar").data(sequence).enter().append('g');
+				bar.attr("class","bar").append("rect")
+				.attr("x",function(d,i){
+ 					return padding+0.5+(i*barWidth)+"%";
+ 				})
+ 				.attr("y",function(d){
+ 					console.log(d);
+ 					return 70+yScale(parseFloat(d.value));})
+				.attr('height',function(d){return 90-yScale(parseFloat(d.value));})
+				.attr("width",barWidth-0.3+"%")
+
+				.on('mouseover', function(d) {	
+
+					d3.select(this).style("fill",'orange');
+
+							    //d3.select(this).style("fill", "green").duration(1000);
+				    document.getElementById("info").innerHTML = "Community Area: "+barData['COMMUNITY AREA NAME']+"<br>" + d.name+"\n:\n"+d.value + "%";
+				    // d3.select(this).transition().attr("y","100%").duration(1000);
+				    // console.log(d['Base Pay (Montly)']);
+ 				 })
+ 				.on('mouseout',function(d){
+ 					d3.select(this).style("fill",'#ccc');
+
+ 				});
+
+			svg.append("line").attr("x1","30%").attr("y1",160).attr("x2",30+5*barWidth+"%").attr("y2",160).attr("stroke","orange");
+				
+
+
+
+	};
+	// var changeBarChart = function(changeData){
+	// 	d3.selectAll(".bar").selectAll("rect").data(changeData).enter().transition().attr("y",function(d){
+	//  					console.log(d);
+	//  					return 100-yScale(parseFloat(d))+"%";})
+	// 				.attr('height',function(d){return yScale(parseFloat(d))+"%";}).duration(1000);
+	// }
+	socialhistogram(data[1]);
+	//changeBarChart(data[3]);
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+ </script>
+</body>
+</html>
