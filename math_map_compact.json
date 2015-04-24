@@ -1,0 +1,83 @@
+{
+    "name": "School performance",
+    "children": [
+        {
+            "name": "Socioeconomic indicators",
+            "children": [
+                {
+                    "name": "Social Class",
+                    "children": [
+                        {
+                            "name": "Poverty"
+                        },
+                        {
+                            "name": "Unemployment"
+                        },
+                        {
+                            "name": "Capital income"
+                        },
+                        
+                        {
+                            "name": "Hardship Index"
+                        }
+                    ]
+                },
+               
+                
+                        
+                  
+                {
+                    "name": "Relationship",
+                    "children": [
+                        {
+                            "name": "Teacher relationship"
+                        },
+                        {
+                            "name": "Family relationship"
+                        },
+                        
+                    
+                        {
+                            "name": "Peer relationship"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "School & Students indicators",
+            "children": [
+                {
+                    "name": "Aspiration level",
+                    "children": [
+                        {
+                            "name": "A caring school climate"
+                        },
+                        {
+                            "name": "School expectations"
+                        },
+                        
+                        {
+                            "name": "Self aspiration"
+                        }
+                    ]
+                },
+                
+              
+                      
+                {
+                    "name": "Academic inclination",
+                    "children": [
+                        {
+                            "name": "Attendence"
+                        },
+                       
+                        {
+                            "name": "Subjects preference"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
