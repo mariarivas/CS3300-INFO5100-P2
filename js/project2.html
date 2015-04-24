@@ -42,21 +42,19 @@ d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
 		sequence.push({"name":"PERCENT AGED 16+ UNEMPLOYED", "value":barData["PERCENT AGED 16+ UNEMPLOYED"]}) ;
 		sequence.push({"name":"PERCENT AGED 25+ WITHOUT HIGH SCHOOL DIPLOMA", "value":barData["PERCENT AGED 25+ WITHOUT HIGH SCHOOL DIPLOMA"]});
 		sequence.push({"name":"PERCENT AGED UNDER 18 OR OVER 64", "value":barData["PERCENT AGED UNDER 18 OR OVER 64"]});
-		//sequence.push(barData["PER CAPITA INCOME"]); 
+		
 
 
 	
 
 	var histogram = d3.layout.histogram();
-	// var xScale = d3.scale.oridinal()
-	// .domain(sequence).range([0 + padding, width]);
-	// var xScale = d3.scale.oridinal().domain([sequence]).rangePoints([padding,sequence.length * barWidth]);
+	
 	var yScale = d3.scale.linear().domain([0,100]).range([120,0]);
 	var yAxis = d3.svg.axis().scale(yScale).orient("left");
 	var theAxis = svg.append("g")
 	.attr("class", "axis")
 	.attr("transform", "translate(" + (svg[0][0].offsetWidth * 0.3) +", 20)")
-	// .attr("transform", "rotate("1")")
+
 
 	.call(yAxis);
 
@@ -84,10 +82,10 @@ d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
 
 					d3.select(this).style("fill",'orange');
 
-							    //d3.select(this).style("fill", "green").duration(1000);
+							
 				    document.getElementById("info").innerHTML = "Community Area: "+barData['COMMUNITY AREA NAME']+"<br>" + d.name+"\n:\n"+d.value + "%" + "<br>"+ "Hard Ship Index:" + barData['HARDSHIP INDEX'];
-				    // d3.select(this).transition().attr("y","100%").duration(1000);
-				    // console.log(d['Base Pay (Montly)']);
+				  
+				    
  				 })
  				.on('mouseout',function(d){
  					d3.select(this).style("fill",'#ccc');
@@ -100,14 +98,9 @@ d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
 
 
 	};
-	// var changeBarChart = function(changeData){
-	// 	d3.selectAll(".bar").selectAll("rect").data(changeData).enter().transition().attr("y",function(d){
-	//  					console.log(d);
-	//  					return 100-yScale(parseFloat(d))+"%";})
-	// 				.attr('height',function(d){return yScale(parseFloat(d))+"%";}).duration(1000);
-	// }
+	
 	socialhistogram(data[1]);
-	//changeBarChart(data[3]);
+	
 
 
 });
