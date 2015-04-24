@@ -22,7 +22,9 @@ svg { border: solid black 1px; }
 <div id="info"></div>
 <div id="chart"></div>
 <script>
+
 d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
+	
 	var socialhistogram = function(barData){
 	var height = 300;
 	var width = 300;
@@ -83,7 +85,7 @@ d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
 					d3.select(this).style("fill",'orange');
 
 							    //d3.select(this).style("fill", "green").duration(1000);
-				    document.getElementById("info").innerHTML = "Community Area: "+barData['COMMUNITY AREA NAME']+"<br>" + d.name+"\n:\n"+d.value + "%";
+				    document.getElementById("info").innerHTML = "Community Area: "+barData['COMMUNITY AREA NAME']+"<br>" + d.name+"\n:\n"+d.value + "%" + "<br>"+ "Hard Ship Index:" + barData['HARDSHIP INDEX'];
 				    // d3.select(this).transition().attr("y","100%").duration(1000);
 				    // console.log(d['Base Pay (Montly)']);
  				 })
