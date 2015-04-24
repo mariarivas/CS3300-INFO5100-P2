@@ -24,7 +24,15 @@ svg { border: solid black 1px; }
 <script>
 
 d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
-	
+	var array = new Array;
+	for(var i =0;i<data.length;i++){
+		array.push(parseInt(data[i]['HARDSHIP INDEX']));
+	}
+	array.sort(function(a,b){return a-b;});
+	;
+	var max = array[array.length-1];
+	var min = array[0];
+	var lengthScale = d3.scale.linear().domain([min,max]).range([0,30]);
 	var socialhistogram = function(barData){
 	var height = 300;
 	var width = 300;
@@ -59,7 +67,7 @@ d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
 	.call(yAxis);
 
 	window.onresize = function(){
-		console.log('test');
+		
 		theAxis.attr("transform", "translate(" + (svg[0][0].offsetWidth * 0.3) +", 20)");
 	};
 
@@ -73,7 +81,7 @@ d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
  					return padding+0.5+(i*barWidth)+"%";
  				})
  				.attr("y",function(d){
- 					console.log(d);
+ 					
  					return 20+yScale(parseFloat(d.value));})
 				.attr('height',function(d){return 120-yScale(parseFloat(d.value));})
 				.attr("width",barWidth-0.3+"%")
@@ -95,11 +103,22 @@ d3.csv("socioeconomic_indicators_in_Chicago_2008_2012.csv", function(data){
 			svg.append("line").attr("x1","30%").attr("y1",140).attr("x2",30+5*barWidth+"%").attr("y2",140).attr("stroke","orange");
 				
 
+			svg.append("rect").attr("x", "60%").attr("y","12%").attr("height","10%").attr("width","30%").attr("fill","#ccc");
+			svg.append("rect").attr("x", "60%").attr("y","12%").attr("height","10%").attr("width",function()
+				{
+					
+					return lengthScale(parseInt(barData['HARDSHIP INDEX']))+"%";
+				})
+			.attr("fill","orange");
+			svg.append("text").attr("x","70%").attr("y","10%").style("font-size", "x-small")
+			.style("text-anchor", "middle")
+			.style("fill", "black")
+			.text("HardShip Index:")
 
 
 	};
-	
 	socialhistogram(data[1]);
+	socialhistogram(data[5]);
 	
 
 
