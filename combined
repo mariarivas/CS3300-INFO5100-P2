@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Project 2</title>
+    <style>
+        body {
+            font-family: Verdana, Helvetica, Arial, sans-serif;
+        }
+        /*body { font-family: "Open Sans"; }*/
+
+        h1 {
+            font-weight: normal;
+            font-size: 18px;
+        }
+
+        .bg {
+            fill: none;
+        }
+
+        .city-border {
+            stroke: #777;
+            stroke-width: 1;
+            fill: none;
+            pointer-events: none;
+        }
+
+        .ward-border {
+            stroke: #777;
+            stroke-linejoin: round;
+            stroke-dasharray: 1,1;
+            fill: none;
+            pointer-events: none;
+        }
+
+        .precincts {
+            pointer-events: none;
+        }
+
+        .precincts path, svg > rect {
+            pointer-events: all;
+        }
+
+        .no-results {
+            fill: pink;
+            background-color: pink;
+        }
+
+        .zero-total {
+            fill: black;
+        }
+
+        .Purples .q0-7{fill:rgb(242,240,247);background-color:rgb(242,240,247)} .Purples .q1-7{fill:rgb(218,218,235);background-color:rgb(218,218,235)} .Purples .q2-7{fill:rgb(188,189,220);background-color:rgb(188,189,220)} .Purples .q3-7{fill:rgb(158,154,200);background-color:rgb(158,154,200)} .Purples .q4-7{fill:rgb(128,125,186);background-color:rgb(128,125,186)} .Purples .q5-7{fill:rgb(106,81,163);background-color:rgb(106,81,163)} .Purples .q6-7{fill:rgb(74,20,134);background-color:rgb(74,20,134)}
+
+        .tooltip {
+            padding: 5px;
+            position: absolute;
+            border: 1px solid #000;
+            background: white;
+            opacity: 0.9;
+            font-size: 12px;
+        }
+
+        .tooltip ul, .tooltip p {
+            margin-bottom: 0;
+        }
+
+        .tooltip ul {
+            list-style: none;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .legend {
+            font-size: 12px;
+            float: right;
+            background-color: white;
+            padding: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .legend .box {
+            height: 15px;
+            width: 15px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .main-text{
+            color:black;
+            font-family: 'Slabo 13px', serif;
+            font-size: 35px;
+            text-transform: uppercase;
+        }
+
+        #map {
+            position: relative;
+        }
+
+
+        svg { border: solid black 1px; }
+        .bar rect { fill: #ccc; }
+        .axis path { fill: none; stroke: orange;}
+        .axis line { stroke: orange; }
+        .axis text { font-size: x-small; }
+        #detailinfo {
+            font-size:x-small;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <link href='http://fonts.googleapis.com/css?family=Slabo+13px' rel='stylesheet' type='text/css'>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="js/scripts.js"></script>
+</head>
+
+    <body class="Purples">
+        <h1 class="main-text">Chicago Map of Communities</h1>
+        <table><tr><td>
+        <div id="selector"></div>
+        <div id="legend"></div>
+        <div id="map"></div>
+        </td><td valign=top>
+        <div id="info"></div>
+        <div id="chart"></div>
+        <div id="detailinfo"></div>
+        </td></tr></table>
+        <script>
+
+
+        var array = new Array;
+        var socialhistogram = function(barData){
+
+            array.sort(function(a,b){return a-b;});
+            ;
+            var max = array[array.length-1];
+            var min = array[0];
+            var lengthScale = d3.scale.linear().domain([min,max]).range([0,30]);
+            
+
+            var padding = 30;
+            var color = d3.scale.category20();
+            document.getElementById('chart').innerHTML = '';
+
+            
+            var svg = d3.select("#chart").append("svg")
+            .attr("height", "100%")
+            .attr("width", "100%");
+
+            var sequence = new Array();
+                sequence.push({"name":"PERCENT OF HOUSING CROWDED", "value":barData["PERCENT OF HOUSING CROWDED"]}) ;
+                sequence.push({"name":"PERCENT HOUSEHOLDS BELOW POVERTY", "value":barData["PERCENT HOUSEHOLDS BELOW POVERTY"]}) ;
+                sequence.push({"name":"PERCENT AGED 16+ UNEMPLOYED", "value":barData["PERCENT AGED 16+ UNEMPLOYED"]}) ;
+                sequence.push({"name":"PERCENT AGED 25+ WITHOUT HIGH SCHOOL DIPLOMA", "value":barData["PERCENT AGED 25+ WITHOUT HIGH SCHOOL DIPLOMA"]});
+                sequence.push({"name":"PERCENT AGED UNDER 18 OR OVER 64", "value":barData["PERCENT AGED UNDER 18 OR OVER 64"]});
+                
+
+
+            
+
+            var histogram = d3.layout.histogram();
+            
+            var yScale = d3.scale.linear().domain([0,100]).range([120,0]);
+            var yAxis = d3.svg.axis().scale(yScale).orient("left");
+            var theAxis = svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + (svg[0][0].offsetWidth * 0.3) +", 20)")
+
+
+            .call(yAxis);
+
+            window.onresize = function(){
+                
+                theAxis.attr("transform", "translate(" + (svg[0][0].offsetWidth * 0.3) +", 20)");
+            };
+
+
+
+            document.getElementById("info").innerHTML = "Community Area: "+barData['COMMUNITY AREA NAME']+"<br>" + "Hard Ship Index:" + barData['HARDSHIP INDEX'];
+            var barWidth = 100/(sequence.length+7);
+
+            var bar = svg.selectAll(".bar").data(sequence).enter().append('g');
+                        bar.attr("class","bar").append("rect")
+                        .attr("x",function(d,i){
+                            return padding+0.5+(i*barWidth)+"%";
+                        })
+                        .attr("y",function(d){
+                            
+                            return 20+yScale(parseFloat(d.value));})
+                        .attr('height',function(d){return 120-yScale(parseFloat(d.value));})
+                        .attr("width",barWidth-0.3+"%")
+
+                        .on('mouseover', function(d) {  
+
+                            d3.select(this).style("fill",'orange');
+
+                                    
+                            document.getElementById("detailinfo").innerHTML = d.name+"\n:\n"+d.value + "%";
+                          
+                            
+                         })
+                        .on('mouseout',function(d){
+                            d3.select(this).style("fill",'#ccc');
+
+                        });
+
+                    svg.append("line").attr("x1","30%").attr("y1",140).attr("x2",30+5*barWidth+"%").attr("y2",140).attr("stroke","orange");
+                        
+
+                    svg.append("rect").attr("x", "60%").attr("y","12%").attr("height","10%").attr("width","30%").attr("fill","#ccc");
+                    svg.append("rect").attr("x", "60%").attr("y","12%").attr("height","10%").attr("width",function()
+                        {
+                            
+                            return lengthScale(parseInt(barData['HARDSHIP INDEX']))+"%";
+                        })
+                    .attr("fill","orange");
+                    svg.append("text").attr("x","70%").attr("y","10%").style("font-size", "x-small")
+                    .style("text-anchor", "middle")
+                    .style("fill", "black")
+                    .text("HardShip Index:")
+
+
+            };
+        </script>
+
+
+        <script>
+            var dispatch = d3.dispatch("load", "statechange"); //this is for the changing of what the map shows. 
+
+            var width = 539;
+            var height = 690;
+
+            var projection = d3.geo.transverseMercator()
+                .rotate([88 + 20 / 60, -36 - 40 / 60]);
+
+            var path = d3.geo.path()
+                .projection(projection);
+
+            var nclasses = 7;
+
+            var quantize = d3.scale.quantize()
+                .domain([0, 1])
+                .range(d3.range(nclasses).map(function(i) {
+                    return "q" + i + "-" + nclasses;
+                }));
+
+            var svg = d3.select("#map").append("svg")
+                .attr("width", width)
+                .attr("height", height)
+
+            svg.append("rect")
+                .attr("class", "bg")
+                .attr("width", width)
+                .attr("height", height)
+                .on("click", reset);
+
+            var results = d3.map();
+            var candidates = d3.set();
+
+            var g = svg.append("g")
+                .attr("class", "map");
+
+            var pg = g.append("g")
+                .attr("class", "precincts");
+
+            // key returns a key suitable for indexing precincts.
+            function key(ward, precinct) {
+                return ("00" + ward).substr(-2, 2) + ("000" + precinct).substr(-3, 3);
+            }
+
+            // unkey takes a precinct id and returns a tuple of ward, precinct.
+            function unkey(key) {
+                return [(+key.substring(0, 2)).toString(), (+key.substring(2, 5)).toString()];
+            }
+
+            var active = d3.select(null);
+
+            function reset() {
+                g.transition()
+                    .duration(750)
+                    .style("stroke-width", "1.5px")
+                    .attr("transform", "");
+            }
+
+            function clicked(d) {
+                if (active.node() === this) {
+                    return reset();
+                }
+
+                active = d3.select(this);
+
+                var centroid = path.centroid(d);
+                var x = centroid[0];
+                var y = centroid[1];
+                var k = 4;
+
+                g.transition()
+                    .duration(750)
+                    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                    .style("stroke-width", 1.5 / k + "px");
+            }
+
+            // draw legend here ********
+
+
+            //********
+            var socioindicatorsData = {};
+            queue()
+                .defer(d3.json, "chicago_2015_precincts_topo.json")
+                .defer(d3.json, "chicago_2015_wards_topo.json")
+                .defer(d3.json, "chicago_topo.json")
+                .defer(d3.csv, "socioeconomic_indicators_in_Chicago_2008_2012.csv", function(d) {
+                    var id = key(d.ward, d.precinct); 
+                    var candidateVotes = results.get(id);
+                    if (candidateVotes === undefined) {
+                        candidateVotes = d3.map();
+                        results.set(id, candidateVotes);
+                    }
+                    candidateVotes.set(d.candidate, +d.votes);
+                    candidates.add(d.candidate);
+                    //console.log(d);
+                    array.push(parseInt(d['HARDSHIP INDEX']));
+                    socioindicatorsData[d['Community Area Number']] = d;
+                })
+                .await(ready);
+            function ready(error, chipcts, chiwards, chiboundary) {
+                if (error) {
+                    return console.error(error);
+                }
+
+                dispatch.load(chipcts, chiwards, chiboundary);
+                dispatch.statechange("TBD");
+            }
+
+            dispatch.on("load.menu", function() {
+                var select = d3.select("#selector")
+                    .append("div")
+                    .append("select")
+                    .on("change", function() {
+                            dispatch.statechange(this.value);
+                        });
+
+                select.selectAll("option")
+                    .data(candidates.values())
+                    .enter().append("option")
+                    .attr("value", function(d) { return d; })
+                    .text(function(d) { return d; });
+
+                dispatch.on("statechange.menu", function(candidate) {
+                    select.property("value", candidate);
+                });
+            });
+
+            dispatch.on("load.map", function(chipcts, chiwards, chiboundary) {
+                var precincts = topojson.feature(chipcts, chipcts.objects.chicago_2015_precincts);
+                var wards = topojson.feature(chiwards, chiwards.objects.chicago_2015_wards);
+
+                projection
+                    .scale(1)
+                    .translate([0, 0]);
+
+                var b = path.bounds(precincts);
+                var s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height);
+                var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+                projection
+                    .scale(s)
+                    .translate(t);
+
+                var keyFn = function(d) { return d.id; }
+
+                g.append("g")
+                    .attr("class", "ward-border")
+                    .selectAll("path")
+                    .data(wards.features)
+                    .enter().append("path")
+                    .attr("d", path);
+
+                g.append("g")
+                        .attr("class", "city-border")
+                        .append("path")
+                        .datum(topojson.mesh(chiboundary, chiboundary.objects.chicago))
+                        .attr("d", path);
+
+                var tooltip = d3.select("#map").append("div")
+                    .attr("class", "tooltip hidden");
+
+                function precinctClass(candidate) {
+                    return function(d) {
+                        if (!results.has(d.id)) {
+                            var id = unkey(d.id);
+                            var ward = id[0];
+                            var pct = id[1];
+                            return "no-results";
+                        }
+                        var candidateVotes = results.get(d.id);
+                        var total = d3.sum(candidateVotes.values());
+                        if (total === 0) {
+                            return "zero-total";
+                        }
+                        var ourGuy = candidateVotes.get(candidate);
+                        return quantize(ourGuy / total);
+                    };
+                }
+
+                dispatch.on("statechange.map", function(candidate) {
+                    var map = pg.selectAll("path")
+                        .data(precincts.features)
+                        .attr("class", precinctClass(candidate));
+
+                    map
+                        .enter().append("path")
+                        .attr("d", path)
+                        .attr("class", precinctClass(candidate))
+                        .on("mousemove", function(d, i) {
+
+                                    
+                            document.getElementById("detailinfo").innerHTML = '';
+                          
+                            var mouse = d3.mouse(this).map(function(d) { return parseInt(d); });
+                            var id = unkey(d.id);
+                            var ward = id[0];
+                            var pct = id[1];
+                            socialhistogram(socioindicatorsData[ward]);
+                            var html = "<b>Community " + ward + " FooBar " + pct + "</b>";
+                            var yOffset;
+                            if (!results.has(d.id)) {
+                                html += "<p><i>No results</i></p>";
+                                yOffset = 70;
+                            } else {
+                                html += "<table>";
+                                var votes = results.get(d.id);
+                                var total = d3.sum(votes.values());
+                                votes.forEach(function(candidate, vote) {
+                                    var voteText = vote === 1 ? "vote" : "votes"
+                                    html += "<tr><td>" + candidate + "</td><td>" + vote + " " + voteText + "</td><td>(" + ((vote/total)*100).toFixed(0) + "%)</td></tr>";
+                                });
+                                html += "</table>";
+                                yOffset = 140;
+                            }
+                            if (mouse[1]-154 < 0) {
+                                yOffset = -20;
+                            }
+                            tooltip
+                                .classed("hidden", false)
+                                .attr("style", "left:"+(mouse[0]-80)+"px;top:"+(mouse[1]-yOffset)+"px")
+                                .html(html);
+                        })
+                        .on("mouseout", function() {
+                            tooltip.classed("hidden", true);
+                        })
+                        .on("click", clicked)
+                        .append("title")
+                            .text(function(d) {
+                                var id = unkey(d.id);
+                                return "Ward " + id[0] + " Precinct " + id[1];
+                            });
+                });
+            });
+
+            d3.select(self.frameElement).style("height", height+"px");
+        </script>
+    </body>
+</html>
