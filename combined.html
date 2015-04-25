@@ -120,7 +120,7 @@
 </head>
 
     <body class="Purples">
-        <h1 class="main-text">Chicago Map of Communities</h1>
+        <h1 class="main-text">Chicago Map of HardShip Based on Communities</h1>
         <table><tr><td>
         <div id="selector"></div>
         <div id="legend"></div>
@@ -307,6 +307,30 @@
 
             // draw legend here ********
 
+            var legend = d3.select("#legend").append("div")
+                .attr("class", "legend");
+
+            var legendRow = legend
+                .selectAll("div")
+                .data(quantize.range().concat("no-results"))
+                .enter().append("div");
+
+            legendRow.append("span")
+                    .attr("class", function(d) { return d + " box"; });
+
+            legendRow.append("span")
+                    .text(function(d, i) {
+                        var n = quantize.range().length;
+                        if (i < n) {
+                            var lower = (i/n)*100;
+                            var upper = ((i+1)/n)*100;
+                            return lower.toFixed(0) + "% up to " + upper.toFixed(0) + "%";
+                        } else {
+                            return "no reported results";
+                        }
+                    });
+
+
 
             //********
             var socioindicatorsData = {};
@@ -427,22 +451,9 @@
                             var ward = id[0];
                             var pct = id[1];
                             socialhistogram(socioindicatorsData[ward]);
-                            var html = "<b>Community " + ward + " FooBar " + pct + "</b>";
+                            var html = "<b>Ward: " + ward + "</b>";
                             var yOffset;
-                            if (!results.has(d.id)) {
-                                html += "<p><i>No results</i></p>";
-                                yOffset = 70;
-                            } else {
-                                html += "<table>";
-                                var votes = results.get(d.id);
-                                var total = d3.sum(votes.values());
-                                votes.forEach(function(candidate, vote) {
-                                    var voteText = vote === 1 ? "vote" : "votes"
-                                    html += "<tr><td>" + candidate + "</td><td>" + vote + " " + voteText + "</td><td>(" + ((vote/total)*100).toFixed(0) + "%)</td></tr>";
-                                });
-                                html += "</table>";
-                                yOffset = 140;
-                            }
+                            yOffset = 140;
                             if (mouse[1]-154 < 0) {
                                 yOffset = -20;
                             }
