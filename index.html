@@ -145,7 +145,7 @@
                 .on("click", reset);
 
             var results = d3.map();
-            var candidates = d3.set();
+            var hardships = d3.set();
 
             var g = svg.append("g")
                 .attr("class", "map");
@@ -199,15 +199,16 @@
                 .defer(d3.json, "chicago_2015_precincts_topo.json")
                 .defer(d3.json, "chicago_2015_wards_topo.json")
                 .defer(d3.json, "chicago_topo.json")
-                .defer(d3.csv, "socioeconomic_indicators_in_Chicago_2008_2012.csv", function(d) {
-                    var id = key(d.ward, d.precinct); 
-                    var candidateVotes = results.get(id);
-                    if (candidateVotes === undefined) {
-                        candidateVotes = d3.map();
-                        results.set(id, candidateVotes);
+                .defer(d3.csv, "socio.csv", function(d) {
+                    var id = key(d.ward, d.community); 
+                    console.log(d.ward, d.community);
+                    var indicators = results.get(id);
+                    if (indicators === undefined) {
+                        indicators = d3.map();
+                        results.set(id, indicators);
                     }
-                    candidateVotes.set(d.candidate, +d.votes);
-                    candidates.add(d.candidate);
+                    //indicators.set(d.ward, +d.'percent below poverty');
+                    //hardships.add(d.community);
                 })
                 .await(ready);
 
@@ -229,7 +230,7 @@
                         });
 
                 select.selectAll("option")
-                    .data(candidates.values())
+                    .data(hardships.values())
                     .enter().append("option")
                     .attr("value", function(d) { return d; })
                     .text(function(d) { return d; });
@@ -305,7 +306,7 @@
                             var id = unkey(d.id);
                             var ward = id[0];
                             var pct = id[1];
-                            console.log(ward);
+                            //console.log(ward);
                             var html = "<b>Community " + ward + " FooBar " + pct + "</b>";
                             var yOffset;
                             if (!results.has(d.id)) {
